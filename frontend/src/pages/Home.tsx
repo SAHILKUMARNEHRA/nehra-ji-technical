@@ -542,7 +542,7 @@ const marqueeStyles = `
 const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description: string; link: string }> = ({ icon, title, description, link }) => (
   <Link
     to={link}
-    className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col items-center text-center group"
+    className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col items-center text-center group white-glow-card"
   >
     <div className="mb-6 transform group-hover:scale-110 transition-transform">{icon}</div>
     <h3 className="text-xl font-bold mb-3 text-gray-900">{title}</h3>
@@ -551,7 +551,7 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description:
 );
 
 const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string }> = ({ icon, label, value }) => (
-  <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm text-center">
+  <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm text-center white-glow-card">
     <div className="w-12 h-12 rounded-2xl bg-gray-50 mx-auto mb-4 flex items-center justify-center">{icon}</div>
     <p className="text-3xl font-black text-gray-900">{value}</p>
     <p className="text-gray-500 font-medium">{label}</p>

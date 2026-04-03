@@ -56,14 +56,14 @@ const Phones: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 white-glow-card">
           <div className="flex items-center gap-2 mb-4 text-blue-600 font-bold uppercase tracking-widest text-xs">
             <Filter size={16} /> Filter By Brand
           </div>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedBrand('')}
-              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${selectedBrand === '' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${selectedBrand === '' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100 white-glow-pill' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
             >
               All Brands
             </button>
@@ -71,7 +71,7 @@ const Phones: React.FC = () => {
               <button
                 key={brand}
                 onClick={() => setSelectedBrand(brand)}
-                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${selectedBrand === brand ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${selectedBrand === brand ? 'bg-blue-600 text-white shadow-lg shadow-blue-100 white-glow-pill' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
               >
                 {brand}
               </button>
@@ -79,7 +79,7 @@ const Phones: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 white-glow-card">
           <div className="flex items-center gap-2 mb-4 text-green-600 font-bold uppercase tracking-widest text-xs">
             <IndianRupee size={16} /> Budget Range
           </div>
@@ -88,7 +88,7 @@ const Phones: React.FC = () => {
               <button
                 key={range.label}
                 onClick={() => setPriceRange(range.value as [number, number])}
-                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${priceRange[0] === range.value[0] && priceRange[1] === range.value[1] ? 'bg-green-600 text-white shadow-lg shadow-green-100' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${priceRange[0] === range.value[0] && priceRange[1] === range.value[1] ? 'bg-green-600 text-white shadow-lg shadow-green-100 white-glow-pill' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
               >
                 {range.label}
               </button>
@@ -99,7 +99,7 @@ const Phones: React.FC = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {filteredPhones.map((phone) => (
-          <div key={phone.id} className="bg-white rounded-[32px] shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group flex flex-col h-full">
+          <div key={phone.id} className="bg-white rounded-[32px] shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group flex flex-col h-full white-glow-card">
             <Link to={`/phones/${phone.id}`} className="flex-grow">
               <div className="h-64 overflow-hidden bg-gray-50 relative group">
                 <img

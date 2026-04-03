@@ -170,3 +170,22 @@ textarea::placeholder {
 .animate-soft-pop {
   animation: soft-pop 400ms ease-out both;
 }
+
+/* Premium white glow effect inspired by the reference screenshot */
+.white-glow-card {
+  box-shadow:
+    0 14px 30px -18px rgba(255, 255, 255, 0.95),
+    0 18px 30px -26px var(--shadow-color) !important;
+}
+
+.white-glow-card:hover {
+  box-shadow:
+    0 18px 38px -18px rgba(255, 255, 255, 1),
+    0 20px 35px -24px var(--shadow-color) !important;
+}
+
+.white-glow-pill {
+  box-shadow:
+    0 9px 22px -10px rgba(255, 255, 255, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
