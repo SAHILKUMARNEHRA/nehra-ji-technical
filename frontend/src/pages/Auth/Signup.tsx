@@ -5,6 +5,7 @@ import api from '../../services/api';
 import { Mail, Lock, User, ArrowRight } from 'lucide-react';
 
 const Signup: React.FC = () => {
+  const FALLBACK_GOOGLE_CLIENT_ID = '725677667661-7ckvolf5qbatvoqdqace0fva3i7dragc.apps.googleusercontent.com';
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,7 +41,7 @@ const Signup: React.FC = () => {
 
     const initGoogle = async () => {
       if (!googleButtonRef.current) return;
-      let googleClientId = envGoogleClientId;
+      let googleClientId = envGoogleClientId || FALLBACK_GOOGLE_CLIENT_ID;
       if (!googleClientId) {
         try {
           const cfg = await api.get('/auth/google-client-id');
@@ -132,7 +133,7 @@ const Signup: React.FC = () => {
     return () => {
       active = false;
     };
-  }, [currentOrigin, envGoogleClientId, login, navigate]);
+  }, [FALLBACK_GOOGLE_CLIENT_ID, currentOrigin, envGoogleClientId, login, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 py-12 px-4">
