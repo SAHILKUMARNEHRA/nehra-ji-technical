@@ -9,6 +9,7 @@ const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -26,11 +27,16 @@ const AdminLogin: React.FC = () => {
     setIsSubmitting(true);
     try {
       const res = await api.post('/auth/admin-login', { email, password });
-      login(res.data.access_token, res.data.role);
-      navigate('/admin');
+      const me = await api.get('/auth/me', {
+        headers: { Authorization: `Bearer ${res.data.access_token}` },
+      });
+      login(res.data.access_token, res.data.role, me.data);
+      setShowSuccess(true);
+      setTimeout(() => {
+        navigate('/admin');
+      }, 900);
     } catch (err: unknown) {
       setError(extractErrorMessage(err, 'Admin login failed'));
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -47,6 +53,11 @@ const AdminLogin: React.FC = () => {
         </div>
 
         {error && <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-sm font-bold mb-6 text-center">{error}</div>}
+        {showSuccess && (
+          <div className="bg-green-50 text-green-700 p-4 rounded-2xl text-sm font-bold mb-6 text-center">
+            Login successful. Welcome to Nehra Ji Technical.
+          </div>
+        )}
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-2">
@@ -87,7 +98,7 @@ const AdminLogin: React.FC = () => {
             {isSubmitting ? (
               <>
                 <Loader2 size={20} className="animate-spin" />
-                Checking Access...
+                <span className="sr-only">Loading</span>
               </>
             ) : (
               <>

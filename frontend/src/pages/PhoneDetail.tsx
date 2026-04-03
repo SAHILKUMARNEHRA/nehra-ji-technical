@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { IndianRupee, Cpu, Battery, Camera, Monitor, HardDrive, Layers, ChevronLeft, ShieldCheck } from 'lucide-react';
-import { getCatalogPhoneById } from '../data/phoneCatalog';
+import { IndianRupee, Cpu, Battery, Camera, Monitor, HardDrive, Layers, ChevronLeft, ShieldCheck, Bluetooth, Wifi, Weight, Gauge } from 'lucide-react';
+import { fallbackPhoneImage, getCatalogPhoneById } from '../data/phoneCatalog';
 
 const PhoneDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,11 +27,12 @@ const PhoneDetail: React.FC = () => {
           <div className="bg-gray-50 p-12 flex items-center justify-center border-r border-gray-100 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-50/50 to-transparent"></div>
             <img 
-              src={phone.image || 'https://via.placeholder.com/600x600?text=Smartphone'} 
+              src={phone.image || fallbackPhoneImage} 
               alt={phone.name} 
               className="max-h-[600px] w-full object-cover rounded-3xl shadow-2xl transform hover:scale-105 transition-transform duration-700 relative z-10"
+              loading="lazy"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/600x600?text=Smartphone';
+                (e.target as HTMLImageElement).src = fallbackPhoneImage;
               }}
             />
           </div>
@@ -56,11 +57,17 @@ const PhoneDetail: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
               <SpecDetail icon={<Cpu className="text-blue-500" />} label="Processor" value={phone.processor} />
+              <SpecDetail icon={<Gauge className="text-blue-500" />} label="Clock Speed" value={phone.clockSpeed} />
+              <SpecDetail icon={<Cpu className="text-blue-500" />} label="CPU Cores" value={phone.cpuCores} />
               <SpecDetail icon={<Layers className="text-purple-500" />} label="RAM Memory" value={phone.ram} />
               <SpecDetail icon={<HardDrive className="text-orange-500" />} label="Internal Storage" value={phone.storage} />
               <SpecDetail icon={<Battery className="text-green-500" />} label="Battery & Charging" value={phone.battery} />
               <SpecDetail icon={<Monitor className="text-cyan-500" />} label="Display Quality" value={phone.display} />
-              <SpecDetail icon={<Camera className="text-red-500" />} label="Camera System" value={phone.camera} />
+              <SpecDetail icon={<Camera className="text-red-500" />} label="Rear Camera" value={phone.rearCamera} />
+              <SpecDetail icon={<Camera className="text-red-500" />} label="Front Camera" value={phone.frontCamera} />
+              <SpecDetail icon={<Weight className="text-slate-500" />} label="Weight" value={phone.weight} />
+              <SpecDetail icon={<Bluetooth className="text-indigo-500" />} label="Bluetooth" value={phone.bluetoothVersion} />
+              <SpecDetail icon={<Wifi className="text-emerald-500" />} label="Wi-Fi" value={phone.wifiVersion} />
             </div>
 
             <div className="flex flex-wrap gap-4 pt-8 border-t border-gray-100">

@@ -16,3 +16,12 @@ class Login(BaseModel):
 
 class GoogleAuthRequest(BaseModel):
     id_token: str
+
+
+class ProfileUpdateRequest(BaseModel):
+    name: str
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str

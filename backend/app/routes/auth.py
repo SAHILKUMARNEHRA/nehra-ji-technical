@@ -7,8 +7,14 @@ from app.database import get_db
 from app.models.user import User
 from app.models.login_event import LoginEvent
 from app.schemas.user import UserCreate, User as UserSchema
-from app.schemas.auth import Login, Token, GoogleAuthRequest
-from app.services.auth import get_password_hash, verify_password, create_access_token
+from app.schemas.auth import (
+    Login,
+    Token,
+    GoogleAuthRequest,
+    ProfileUpdateRequest,
+    ChangePasswordRequest,
+)
+from app.services.auth import get_password_hash, verify_password, create_access_token, get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -122,3 +128,42 @@ def google_auth(payload: GoogleAuthRequest, db: Session = Depends(get_db)):
     access_token = create_access_token(data={"sub": user.email, "role": user.role})
     record_login_event(db, user, "google")
     return {"access_token": access_token, "token_type": "bearer", "role": user.role}
+
+
+@router.get("/me", response_model=UserSchema)
+def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+@router.put("/profile", response_model=UserSchema)
+def update_profile(
+    payload: ProfileUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    clean_name = payload.name.strip()
+    if not clean_name:
+        raise HTTPException(status_code=400, detail="Name cannot be empty")
+    if len(clean_name) > 80:
+        raise HTTPException(status_code=400, detail="Name is too long")
+
+    current_user.name = clean_name
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@router.post("/change-password")
+def change_password(
+    payload: ChangePasswordRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if not verify_password(payload.current_password, current_user.password):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if len(payload.new_password) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+
+    current_user.password = get_password_hash(payload.new_password)
+    db.commit()
+    return {"message": "Password updated successfully"}

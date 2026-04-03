@@ -9,6 +9,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
   const [googleHint, setGoogleHint] = useState('');
   const { login } = useAuth();
@@ -31,11 +32,16 @@ const Login: React.FC = () => {
     setIsSubmitting(true);
     try {
       const res = await api.post('/auth/login', { email, password });
-      login(res.data.access_token, res.data.role);
-      navigate('/');
+      const me = await api.get('/auth/me', {
+        headers: { Authorization: `Bearer ${res.data.access_token}` },
+      });
+      login(res.data.access_token, res.data.role, me.data);
+      setShowSuccess(true);
+      setTimeout(() => {
+        navigate('/');
+      }, 900);
     } catch (err: unknown) {
       setError(extractErrorMessage(err, 'Login failed'));
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -75,8 +81,15 @@ const Login: React.FC = () => {
           callback: async (response: GoogleIdCredentialResponse) => {
             try {
               const res = await api.post('/auth/google', { id_token: response.credential });
-              login(res.data.access_token, res.data.role);
-              navigate('/');
+              const me = await api.get('/auth/me', {
+                headers: { Authorization: `Bearer ${res.data.access_token}` },
+              });
+              login(res.data.access_token, res.data.role, me.data);
+              setShowSuccess(true);
+              setIsSubmitting(true);
+              setTimeout(() => {
+                navigate('/');
+              }, 900);
             } catch (err: unknown) {
               const detail = extractErrorMessage(err, 'Google login failed');
               if (String(detail).toLowerCase().includes('mismatch')) {
@@ -84,6 +97,7 @@ const Login: React.FC = () => {
               } else {
                 setError(detail);
               }
+              setIsSubmitting(false);
             }
           },
         });
@@ -115,6 +129,11 @@ const Login: React.FC = () => {
         </div>
 
         {error && <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-sm font-bold mb-6 text-center">{error}</div>}
+        {showSuccess && (
+          <div className="bg-green-50 text-green-700 p-4 rounded-2xl text-sm font-bold mb-6 text-center">
+            Login successful. Welcome to Nehra Ji Technical.
+          </div>
+        )}
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-2">
@@ -155,7 +174,7 @@ const Login: React.FC = () => {
             {isSubmitting ? (
               <>
                 <Loader2 size={20} className="animate-spin" />
-                Logging In...
+                <span className="sr-only">Loading</span>
               </>
             ) : (
               <>

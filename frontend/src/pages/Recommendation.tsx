@@ -1,29 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { IndianRupee, Cpu, Battery, Camera, Sparkles, Layers, Monitor, HardDrive, ShoppingCart, Trash2, Globe } from 'lucide-react';
-import { releasedCatalogPhones, type CatalogPhone } from '../data/phoneCatalog';
+import { fallbackPhoneImage, releasedCatalogPhones, type CatalogPhone } from '../data/phoneCatalog';
 import { getProcessorByText } from '../data/processors';
 
 type UsageType = 'performance' | 'gaming' | 'camera' | 'battery' | 'multitasking';
-type SourceMode = 'local' | 'web' | 'hybrid';
 
 interface RankedRecommendation {
   phone: CatalogPhone;
   score: number;
   reason: string;
-  source: 'Local' | 'Web';
   confidence: number;
   budgetGap: number;
 }
 
 interface WebSmartphone {
-  id: number;
   title: string;
   brand: string;
-  price: number;
-  description: string;
-  thumbnail: string;
-  category?: string;
 }
 
 const parseFirstNumber = (value: string): number => {
@@ -95,11 +88,10 @@ const getSmartScore = (phone: CatalogPhone, usage: UsageType, budget: number, pr
 const Recommendation: React.FC = () => {
   const [budget, setBudget] = useState<number>(50000);
   const [usage, setUsage] = useState<UsageType>('performance');
-  const [sourceMode, setSourceMode] = useState<SourceMode>('hybrid');
   const [preferenceText, setPreferenceText] = useState('');
   const [results, setResults] = useState<RankedRecommendation[]>([]);
   const [loading, setLoading] = useState(false);
-  const [webPhones, setWebPhones] = useState<CatalogPhone[]>([]);
+  const [webSignals, setWebSignals] = useState<string[]>([]);
   const [savedIds, setSavedIds] = useState<number[]>(() => {
     const raw = localStorage.getItem('savedPhones');
     if (!raw) return [];
@@ -116,60 +108,29 @@ const Recommendation: React.FC = () => {
   }, [savedIds]);
 
   useEffect(() => {
-    const fetchWebPhones = async () => {
+    const fetchWebSignals = async () => {
       try {
         const response = await fetch('https://dummyjson.com/products/category/smartphones?limit=100');
         if (!response.ok) return;
         const data = await response.json();
         const products: WebSmartphone[] = Array.isArray(data?.products) ? data.products : [];
-
-        const mapped: CatalogPhone[] = products.map((item, index) => {
-          const localMatch = releasedCatalogPhones.find((phone) => {
-            const n1 = normalize(phone.name);
-            const n2 = normalize(`${item.brand} ${item.title}`);
-            return n1.includes(n2) || n2.includes(n1);
-          });
-
-          const fallbackImage = `https://loremflickr.com/640/640/${encodeURIComponent(`${item.brand} smartphone`) }?lock=${900000 + item.id}`;
-
-          if (localMatch) return localMatch;
-
-          return {
-            id: 900000 + item.id + index,
-            name: `${item.brand} ${item.title}`,
-            brand: item.brand || 'Unknown',
-            model: item.title,
-            processor: 'Web data - chipset details not provided',
-            ram: 'N/A',
-            storage: 'N/A',
-            battery: 'N/A',
-            display: 'N/A',
-            camera: 'N/A',
-            price: Math.max(10000, Math.round((item.price || 400) * 85)),
-            image: item.thumbnail || fallbackImage,
-            isUpcoming: false,
-            status: 'Web Listing',
-            launch: null,
-            note: item.description || 'Fetched from web catalog source',
-          };
-        });
-
-        setWebPhones(mapped);
+        const keys = products.map((item) => normalize(`${item.brand} ${item.title}`));
+        setWebSignals(keys);
       } catch {
-        setWebPhones([]);
+        setWebSignals([]);
       }
     };
 
-    fetchWebPhones();
+    fetchWebSignals();
   }, []);
 
   const minBudget = useMemo(() => Math.min(...releasedCatalogPhones.map((p) => p.price)), []);
 
   const savedPhones = useMemo(
     () => savedIds
-      .map((id) => releasedCatalogPhones.find((phone) => phone.id === id) || webPhones.find((phone) => phone.id === id))
+      .map((id) => releasedCatalogPhones.find((phone) => phone.id === id))
       .filter(Boolean) as CatalogPhone[],
-    [savedIds, webPhones]
+    [savedIds]
   );
 
   const toggleSavePhone = (phoneId: number) => {
@@ -181,11 +142,7 @@ const Recommendation: React.FC = () => {
 
     setTimeout(() => {
       const sourcePhones =
-        sourceMode === 'local'
-          ? releasedCatalogPhones
-          : sourceMode === 'web'
-            ? webPhones
-            : [...releasedCatalogPhones, ...webPhones];
+        releasedCatalogPhones;
 
       const withinBudget = sourcePhones.filter((phone) => phone.price <= budget);
       const nearBudget = withinBudget.filter((phone) => phone.price >= budget * 0.55);
@@ -199,10 +156,20 @@ const Recommendation: React.FC = () => {
       const ranked = pool
         .map((phone) => {
           const { score, reason } = getSmartScore(phone, usage, budget, preferenceText);
-          const source: 'Local' | 'Web' = phone.status === 'Web Listing' ? 'Web' : 'Local';
+          const webHit = webSignals.some((key) => {
+            const name = normalize(phone.name);
+            return name.includes(key) || key.includes(name);
+          });
+          const adjustedScore = score + (webHit ? 2.4 : 0);
           const budgetGap = Math.max(0, budget - phone.price);
-          const confidence = Math.max(55, Math.min(98, Math.round((score / 15) + (phone.price <= budget ? 18 : 6))));
-          return { phone, score, reason, source, confidence, budgetGap };
+          const confidence = Math.max(55, Math.min(98, Math.round((adjustedScore / 15) + (phone.price <= budget ? 18 : 6))));
+          return {
+            phone,
+            score: adjustedScore,
+            reason: webHit ? `${reason} This model also aligns with live web trend signals.` : reason,
+            confidence,
+            budgetGap,
+          };
         })
         .sort((a, b) => b.score - a.score)
         .slice(0, 6);
@@ -216,7 +183,7 @@ const Recommendation: React.FC = () => {
     <div className="max-w-6xl mx-auto px-4 py-12">
       <div className="text-center mb-12">
         <h1 className="text-5xl font-black text-gray-900 mb-4 uppercase tracking-tight">AI Phone Finder</h1>
-        <p className="text-gray-500 text-lg font-medium">Free AI ranking with local dataset + web-source discovery mode.</p>
+        <p className="text-gray-500 text-lg font-medium">AI ranking powered by live web trend signals + full local technical specs.</p>
       </div>
 
       <div className="bg-white p-10 rounded-[40px] shadow-2xl border border-gray-100 mb-14 relative overflow-hidden">
@@ -253,20 +220,7 @@ const Recommendation: React.FC = () => {
           </div>
         </div>
 
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 ml-2">AI Data Source</label>
-            <select
-              value={sourceMode}
-              onChange={(e) => setSourceMode(e.target.value as SourceMode)}
-              className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-100 outline-none transition-all font-bold text-gray-900"
-            >
-              <option value="hybrid">Hybrid (Local + Web)</option>
-              <option value="local">Local Dataset Only</option>
-              <option value="web">Web Source Only</option>
-            </select>
-            <p className="text-xs text-gray-400 mt-2">Web mode uses live public smartphone listings. Local mode gives richest spec accuracy.</p>
-          </div>
+        <div className="relative z-10 mb-8">
           <div>
             <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 ml-2">Extra Preference (Optional)</label>
             <input
@@ -277,6 +231,7 @@ const Recommendation: React.FC = () => {
               className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-100 outline-none transition-all font-medium text-gray-900"
             />
           </div>
+          <p className="text-xs text-gray-400 mt-2">Live web smartphone signals are automatically used to improve ranking relevance.</p>
         </div>
 
         <button
@@ -302,8 +257,9 @@ const Recommendation: React.FC = () => {
                     src={phone.image}
                     alt={phone.name}
                     className="w-16 h-16 object-cover rounded-xl bg-white"
+                    loading="lazy"
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = `https://loremflickr.com/300/300/smartphone?lock=${phone.id}`;
+                      (e.currentTarget as HTMLImageElement).src = fallbackPhoneImage;
                     }}
                   />
                   <div className="min-w-0">
@@ -345,8 +301,9 @@ const Recommendation: React.FC = () => {
                       src={item.phone.image}
                       alt={item.phone.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      loading="lazy"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = `https://loremflickr.com/640/640/smartphone?lock=${item.phone.id}`;
+                        (e.target as HTMLImageElement).src = fallbackPhoneImage;
                       }}
                     />
                   </div>
@@ -357,9 +314,9 @@ const Recommendation: React.FC = () => {
                       <p className="text-[10px] text-blue-500 font-black uppercase tracking-widest mb-2">{item.phone.brand}</p>
                       <h3 className="text-xl font-bold text-gray-900 line-clamp-2 leading-tight">{item.phone.name}</h3>
                     </div>
-                    <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full inline-flex items-center gap-1 ${item.source === 'Web' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-green-50 text-green-700 border border-green-200'}`}>
-                      {item.source === 'Web' ? <Globe size={11} /> : null}
-                      {item.source}
+                    <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200">
+                      <Globe size={11} />
+                      AI + Web
                     </span>
                   </div>
 
@@ -380,9 +337,6 @@ const Recommendation: React.FC = () => {
                   </div>
 
                   <p className="text-sm text-green-700 bg-green-50 border border-green-100 rounded-xl p-3 mb-4">{item.reason}</p>
-                  {item.phone.status === 'Web Listing' && (
-                    <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-2 mb-4">Web source has limited specs for this model. Compare with local catalog for full details.</p>
-                  )}
 
                   <div className="mb-4 bg-blue-50/50 inline-flex items-center px-4 py-2 rounded-2xl text-blue-600 font-black border border-blue-50">
                     <IndianRupee size={16} />
@@ -399,11 +353,7 @@ const Recommendation: React.FC = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    {item.phone.status === 'Web Listing' ? (
-                      <span className="flex-1 bg-gray-200 text-gray-500 py-3 rounded-xl font-bold text-center">Web Specs Limited</span>
-                    ) : (
-                      <Link to={`/phones/${item.phone.id}`} className="flex-1 bg-gray-900 hover:bg-black text-white py-3 rounded-xl font-bold text-center">Full Specs</Link>
-                    )}
+                    <Link to={`/phones/${item.phone.id}`} className="flex-1 bg-gray-900 hover:bg-black text-white py-3 rounded-xl font-bold text-center">Full Specs</Link>
                     <button
                       onClick={() => toggleSavePhone(item.phone.id)}
                       className={`px-4 py-3 rounded-xl font-bold ${savedIds.includes(item.phone.id) ? 'bg-red-50 border border-red-200 text-red-600' : 'bg-blue-50 border border-blue-100 text-blue-700'}`}

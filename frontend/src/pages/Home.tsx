@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Smartphone, Youtube, Newspaper, ThumbsUp, Layers, CalendarClock, MessageSquareText, BellRing, Users, Cpu, Gauge, Gamepad2 } from 'lucide-react';
-import { allCatalogPhones, upcomingCatalogPhones } from '../data/phoneCatalog';
+import { allCatalogPhones, fallbackPhoneImage, upcomingCatalogPhones } from '../data/phoneCatalog';
 import { getBrandLogo } from '../data/brandLogos';
 import { latestAndroidProcessors, appleProcessors, processorCatalog } from '../data/processors';
 import { osDataLastChecked, osUpdates } from '../data/osUpdates';
@@ -351,7 +351,7 @@ const Home: React.FC = () => {
                   className="h-full w-full object-contain"
                   loading="lazy"
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = `https://loremflickr.com/640/640/smartphone?lock=${phone.id}`;
+                    (e.currentTarget as HTMLImageElement).src = fallbackPhoneImage;
                   }}
                 />
               </div>

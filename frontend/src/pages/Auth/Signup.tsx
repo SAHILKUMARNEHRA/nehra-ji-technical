@@ -70,7 +70,10 @@ const Signup: React.FC = () => {
           callback: async (response: GoogleIdCredentialResponse) => {
             try {
               const res = await api.post('/auth/google', { id_token: response.credential });
-              login(res.data.access_token, res.data.role);
+              const me = await api.get('/auth/me', {
+                headers: { Authorization: `Bearer ${res.data.access_token}` },
+              });
+              login(res.data.access_token, res.data.role, me.data);
               navigate('/');
             } catch (err: unknown) {
               const detail = extractErrorMessage(err, 'Google sign-up failed');
