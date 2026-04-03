@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+:root {
+  font-family: "Sora", "Poppins", "Inter", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --app-bg: #f6f7fb;
+  --surface-1: #f9fafc;
+  --surface-2: #ffffff;
+  --text-1: #111111;
+  --text-2: #353535;
+  --text-3: #646464;
+  --border-1: #ececec;
+  --accent-500: #2563eb;
+  --accent-600: #1d4ed8;
+  --accent-400: #60a5fa;
+  --nav-bg: #0b1736;
+  --nav-text: #f9f9f9;
+  --shadow-color: rgba(17, 17, 17, 0.2);
+}
+
+html.dark {
+  --app-bg: #090909;
+  --surface-1: #121212;
+  --surface-2: #171717;
+  --text-1: #f2f2f2;
+  --text-2: #d0d0d0;
+  --text-3: #9c9c9c;
+  --border-1: #2b2b2b;
+  --accent-500: #3b82f6;
+  --accent-600: #2563eb;
+  --accent-400: #93c5fd;
+  --nav-bg: #020b20;
+  --nav-text: #f8f8f8;
+  --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+* {
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  color: var(--text-1);
+  background:
+    radial-gradient(circle at 10% 5%, color-mix(in oklab, var(--accent-400) 35%, transparent), transparent 42%),
+    radial-gradient(circle at 88% 94%, color-mix(in oklab, var(--accent-500) 22%, transparent), transparent 48%),
+    var(--app-bg);
+}
+
+::selection {
+  background: #111111;
+  color: #bfdbfe;
+}
+
+/* Accent remap */
+.bg-blue-600 { background-color: var(--accent-500) !important; }
+.bg-blue-700 { background-color: var(--accent-600) !important; }
+.hover\:bg-blue-700:hover { background-color: var(--accent-600) !important; }
+.hover\:bg-blue-600:hover { background-color: var(--accent-500) !important; }
+.text-blue-600 { color: var(--accent-500) !important; }
+.text-blue-500 { color: var(--accent-500) !important; }
+.text-blue-400 { color: var(--accent-400) !important; }
+.bg-blue-100 { background-color: color-mix(in oklab, var(--accent-500) 28%, var(--surface-2)) !important; }
+.text-blue-700 { color: color-mix(in oklab, #000 68%, var(--accent-500)) !important; }
+.border-blue-100 { border-color: color-mix(in oklab, var(--accent-400) 20%, var(--surface-2)) !important; }
+.ring-blue-500 { --tw-ring-color: var(--accent-500) !important; }
+.focus\:ring-blue-500:focus { --tw-ring-color: var(--accent-500) !important; }
+
+/* Surface/text remap */
+.bg-gray-50 { background-color: var(--surface-1) !important; }
+.bg-white { background-color: var(--surface-2) !important; }
+.text-gray-900 { color: var(--text-1) !important; }
+.text-gray-700,
+.text-gray-600,
+.text-gray-500 { color: var(--text-2) !important; }
+.text-gray-400,
+.text-gray-300 { color: var(--text-3) !important; }
+.border-gray-100,
+.border-gray-200 { border-color: var(--border-1) !important; }
+
+/* Keep deep sections/theme containers coherent */
+.bg-gray-900 { background-color: var(--nav-bg) !important; }
+.bg-black { background-color: color-mix(in oklab, var(--nav-bg) 75%, #000) !important; }
+
+.shadow-xl,
+.shadow-2xl {
+  box-shadow: 0 18px 38px -24px var(--shadow-color) !important;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-pop {
+  0% {
+    transform: scale(0.98);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes float-chip {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes hero-pan {
+  0% {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.12) translate3d(0, -1.5%, 0);
+  }
+  100% {
+    transform: scale(1.08) translate3d(0, 0, 0);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin 10s linear infinite;
+}
+
+.animate-float {
+  animation: float-chip 4s ease-in-out infinite;
+}
+
+.animate-hero-pan {
+  animation: hero-pan 16s ease-in-out infinite;
+}
+
+.animate-fade-up {
+  animation: fade-up 650ms ease-out both;
+}
+
+.animate-soft-pop {
+  animation: soft-pop 400ms ease-out both;
+}
