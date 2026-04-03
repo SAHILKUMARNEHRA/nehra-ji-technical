@@ -5,6 +5,7 @@ import api from '../../services/api';
 import { Mail, Lock, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 
 const Login: React.FC = () => {
+  const [pageLoading, setPageLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -45,6 +46,11 @@ const Login: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => setPageLoading(false), 550);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -119,6 +125,14 @@ const Login: React.FC = () => {
       active = false;
     };
   }, [currentOrigin, envGoogleClientId, login, navigate]);
+
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+        <div className="w-16 h-16 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 py-12 px-4">
