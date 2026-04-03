@@ -56,13 +56,7 @@ const Signup: React.FC = () => {
         return;
       }
 
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      document.body.appendChild(script);
-
-      script.onload = () => {
+      const renderGoogleButton = () => {
         if (!window.google || !googleButtonRef.current || !active) return;
 
         window.google.accounts.id.initialize({
@@ -96,6 +90,41 @@ const Signup: React.FC = () => {
         setGoogleHint('');
         setGoogleReady(true);
       };
+
+      if (window.google?.accounts?.id) {
+        renderGoogleButton();
+        return;
+      }
+
+      const existing = document.querySelector<HTMLScriptElement>('script[src="https://accounts.google.com/gsi/client"]');
+      if (existing) {
+        const checkExisting = window.setInterval(() => {
+          if (window.google?.accounts?.id) {
+            window.clearInterval(checkExisting);
+            renderGoogleButton();
+          }
+        }, 200);
+        window.setTimeout(() => {
+          window.clearInterval(checkExisting);
+          if (!window.google?.accounts?.id && active) {
+            setGoogleHint('Could not load Google sign-in script. Please disable ad-block/privacy extensions and refresh.');
+            setGoogleReady(false);
+          }
+        }, 4000);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = renderGoogleButton;
+      script.onerror = () => {
+        if (!active) return;
+        setGoogleHint('Could not load Google sign-in script. Please disable ad-block/privacy extensions and refresh.');
+        setGoogleReady(false);
+      };
+      document.body.appendChild(script);
     };
 
     initGoogle();
