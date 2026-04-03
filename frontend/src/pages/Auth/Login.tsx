@@ -56,6 +56,12 @@ const Login: React.FC = () => {
   useEffect(() => {
     let active = true;
 
+    if (pageLoading) {
+      return () => {
+        active = false;
+      };
+    }
+
     const initGoogle = async () => {
       if (!googleButtonRef.current) return;
       let googleClientId = envGoogleClientId || FALLBACK_GOOGLE_CLIENT_ID;
@@ -154,7 +160,7 @@ const Login: React.FC = () => {
     return () => {
       active = false;
     };
-  }, [FALLBACK_GOOGLE_CLIENT_ID, currentOrigin, envGoogleClientId, login, navigate]);
+  }, [FALLBACK_GOOGLE_CLIENT_ID, currentOrigin, envGoogleClientId, login, navigate, pageLoading]);
 
   if (pageLoading) {
     return (
