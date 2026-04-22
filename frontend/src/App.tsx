@@ -17,6 +17,7 @@ import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
 import AdminLogin from './pages/Auth/AdminLogin';
 import AdminDashboard from './pages/Admin/Dashboard';
+import Cart from './pages/Cart';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/cart" element={<Cart />} />
             <Route path="/about" element={<About />} />
             <Route path="/phones" element={<Phones />} />
             <Route path="/phones/:id" element={<PhoneDetail />} />

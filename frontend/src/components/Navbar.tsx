@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, User, LogOut, Sun, Moon, Settings, KeyRound, Loader2 } from 'lucide-react';
+import { Menu, X, User, LogOut, Sun, Moon, Settings, KeyRound, Loader2, ShoppingCart } from 'lucide-react';
 import api from '../services/api';
 
 import logo from '../assets/logo.png';
@@ -210,10 +210,23 @@ const Navbar: React.FC = () => {
                 >
                   {isDark ? <Sun size={17} /> : <Moon size={17} />}
                 </button>
+                <Link
+                  to="/cart"
+                  className="ml-2 inline-flex items-center justify-center p-2 rounded-md border border-blue-400/30 hover:bg-white/10 text-blue-300"
+                  title="View Cart"
+                >
+                  <ShoppingCart size={17} />
+                </Link>
               </div>
             </div>
 
             <div className="md:hidden">
+              <Link
+                to="/cart"
+                className="mr-2 inline-flex items-center justify-center p-2 rounded-md text-blue-200 hover:text-white hover:bg-white/10 focus:outline-none"
+              >
+                <ShoppingCart size={24} />
+              </Link>
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="inline-flex items-center justify-center p-2 rounded-md text-blue-200 hover:text-white hover:bg-white/10 focus:outline-none"

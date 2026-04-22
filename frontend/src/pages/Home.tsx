@@ -72,10 +72,10 @@ const Home: React.FC = () => {
       <style>{marqueeStyles}</style>
       <section className="relative h-[85vh] flex items-center justify-center overflow-hidden">
         <div
-          className="absolute inset-0 z-0 bg-cover bg-center animate-hero-pan"
+          className="absolute inset-0 z-0 bg-cover bg-center animate-hero-pan brightness-110"
           style={{ backgroundImage: `url(${heroBg})` }}
         >
-          <div className="absolute inset-0 bg-black/60"></div>
+          <div className="absolute inset-0 bg-black/30"></div>
         </div>
 
         <div className="relative z-10 text-center px-4 animate-fade-up">
